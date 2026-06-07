@@ -1,0 +1,13 @@
+# Local validation and render artifacts
+ReportPng/
+ReportPdf/
+ReportRender/
+ValidationLogs/*.fail
+
+# MATLAB/Octave temporary files
+*.asv
+octave-workspace
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
