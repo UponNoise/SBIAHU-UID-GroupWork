@@ -42,14 +42,15 @@ Observed output:
 
 ```text
 UI_SMOKE_OK
-ValidationLogs/ui_smoke.ok written
+validation/logs/ui_smoke.ok written
+exit=0
 ```
 
 Important note:
 
-- Octave/FLTK on Windows returned a non-zero process code after UI shutdown.
-- The UI smoke script wrote `ValidationLogs/ui_smoke.ok`, proving that `RunIntelligentNavigationUI` launched without a thrown exception.
-- This is treated as a known Octave graphics-backend shutdown issue, not a UI construction failure.
+- `validate_ui_smoke.m` now starts figures invisibly and deletes all figures before exit.
+- The current Windows Octave run returned `exit=0` and wrote `validation/logs/ui_smoke.ok`.
+- This proves that `RunIntelligentNavigationUI` launched without a thrown exception in the smoke environment.
 
 ## Remaining Runtime Check
 

@@ -1,10 +1,10 @@
 function validate_ui_smoke()
 %VALIDATE_UI_SMOKE Fast launch check for the Intelligent Navigation UI.
-% This script writes an OK/FAIL marker because Octave on Windows can return a
-% non-zero process code after FLTK UI shutdown even when the UI launched.
+% This script runs figures invisibly, deletes them before exit, and writes an
+% OK/FAIL marker for repeatable Octave validation on Windows.
 
 baseDir = fileparts(mfilename('fullpath'));
-logDir = fullfile(baseDir, 'ValidationLogs');
+logDir = fullfile(baseDir, 'validation', 'logs');
 if exist(logDir, 'dir') ~= 7
     mkdir(logDir);
 end
@@ -20,13 +20,17 @@ end
 
 try
     oldDir = pwd;
+    oldFigureVisible = get(0, 'defaultfigurevisible');
+    set(0, 'defaultfigurevisible', 'off');
     cd(baseDir);
     mainText = fileread(fullfile(baseDir, 'main.m'));
     if isempty(strfind(mainText, 'RunIntelligentNavigationUI'))
         error('main.m does not call RunIntelligentNavigationUI.');
     end
     RunIntelligentNavigationUI();
-    close all;
+    delete(findall(0, 'type', 'figure'));
+    drawnow;
+    set(0, 'defaultfigurevisible', oldFigureVisible);
     cd(oldDir);
 
     fid = fopen(okFile, 'w');
@@ -35,8 +39,14 @@ try
     fclose(fid);
     disp('UI_SMOKE_OK');
 catch err
+    try
+        delete(findall(0, 'type', 'figure'));
+        drawnow;
+        set(0, 'defaultfigurevisible', oldFigureVisible);
+    catch
+    end
     baseDir = fileparts(mfilename('fullpath'));
-    logDir = fullfile(baseDir, 'ValidationLogs');
+    logDir = fullfile(baseDir, 'validation', 'logs');
     failFile = fullfile(logDir, 'ui_smoke.fail');
     if exist(logDir, 'dir') ~= 7
         mkdir(logDir);

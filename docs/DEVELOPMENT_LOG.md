@@ -61,13 +61,22 @@ Observed output:
 
 ```text
 UI_SMOKE_OK
-ValidationLogs/ui_smoke.ok written
+validation/logs/ui_smoke.ok written
+exit=0
 ```
 
-Known Octave behavior:
+Current UI smoke behavior:
 
-- Octave/FLTK on Windows returned a non-zero process code after UI shutdown even when `UI_SMOKE_OK` was written.
-- The marker file `ValidationLogs/ui_smoke.ok` is therefore used as the reliable fast smoke-test acceptance signal.
+- `validate_ui_smoke.m` starts figures invisibly and deletes them before process exit.
+- The latest Windows Octave run returned `exit=0` and wrote `validation/logs/ui_smoke.ok`.
+
+### Structure and Review Update
+
+- Moved report files and report images under `docs/report/`.
+- Moved final submission attachments under `submission/`.
+- Moved validation records under `validation/logs/`.
+- Added Chinese project README, requirement audit, and group review guide.
+- Rebuilt `submission/IntelligentNavigationUI_MatlabScripts.zip` after the UI smoke script update.
 
 ### Optimization and Risk Notes
 

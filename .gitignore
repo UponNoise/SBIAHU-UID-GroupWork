@@ -2,7 +2,8 @@
 ReportPng/
 ReportPdf/
 ReportRender/
-ValidationLogs/*.fail
+ValidationLogs/
+validation/logs/*.fail
 
 # MATLAB/Octave temporary files
 *.asv

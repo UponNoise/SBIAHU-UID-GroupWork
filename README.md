@@ -1,6 +1,6 @@
-# Stony Brook University ISE333 Course Project
+# SBIAHU-UID-GroupWork
 
-## Intelligent Navigation UI
+## Stony Brook University ISE333 Course Project: Intelligent Navigation UI
 
 Course: ISE333 / CSE333 User Interface Development  
 Term: Spring 2026  
@@ -20,10 +20,10 @@ Official course reference: [Stony Brook University ISE333 / CSE333 User Interfac
 - `MapForUI.jpg`: required course map asset.
 - `validate_navigation_core.m`: non-GUI validation of map scale, road legality, snapping, shortest path, and local circular masking.
 - `validate_ui_smoke.m`: fast UI launch smoke test.
-- `Technical_Report_Intelligent_Navigation_UI.docx`: technical report.
-- `Technical_Report_Intelligent_Navigation_UI.pdf`: exported report PDF.
-- `Final_Submission_Attachments/`: files prepared for course email submission.
-- `DEVELOPMENT_LOG.md`: development and validation log.
+- `README_CN.md`: Chinese project guide for group members.
+- `docs/`: technical report, design assets, Chinese audit notes, and development log.
+- `submission/`: files prepared for course email submission.
+- `validation/logs/`: Octave validation summary and smoke-test markers.
 
 ## Run the UI
 
@@ -70,13 +70,15 @@ UI smoke validation:
 & "$env:USERPROFILE\Tools\Octave\octave-11.1.0-w64\mingw64\bin\octave-cli.exe" --no-gui --quiet --path . --eval "validate_ui_smoke; exit(0);"
 ```
 
-Expected marker file:
+Expected output and marker file:
 
 ```text
-ValidationLogs/ui_smoke.ok
+UI_SMOKE_OK
+exit=0
+validation/logs/ui_smoke.ok
 ```
 
-Octave on Windows may return a non-zero process code after FLTK graphics shutdown even when the UI launched successfully. For this reason, the smoke check uses the marker file plus console output `UI_SMOKE_OK` as the acceptance signal.
+The smoke script runs figures invisibly and deletes them before exit, so the current Octave check returns `exit=0` on this machine. MATLAB should still be used for final interactive UI acceptance when available.
 
 ## Optional Requirement Assignment
 
@@ -90,7 +92,7 @@ Octave on Windows may return a non-zero process code after FLTK graphics shutdow
 
 ## Submission Files
 
-Use files in `Final_Submission_Attachments/` for the course email:
+Use files in `submission/` for the course email:
 
 - `IntelligentNavigationUI_MatlabScripts.zip`
 - `Technical_Report_Intelligent_Navigation_UI.docx`

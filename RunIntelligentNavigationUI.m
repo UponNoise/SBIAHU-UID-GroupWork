@@ -659,6 +659,9 @@ redraw();
                 app.localVehicleId = [];
             end
         end
+        if app.showSkeletonBand && size(app.skeletonPoints, 1) >= 2
+            displayImage = buildSkeletonMaskedImage(displayImage, app.skeletonPoints, 14);
+        end
 
         drawMapImage(displayImage);
 
@@ -834,6 +837,53 @@ redraw();
         for row = 1:hImg
             yReal = (hImg - row + 0.5) * app.scaleM;
             keep(row, :) = (xs - center(1)).^2 + (yReal - center(2)).^2 <= r2;
+        end
+        for k = 1:3
+            plane = img(:, :, k);
+            plane(~keep) = 245;
+            img(:, :, k) = plane;
+        end
+    end
+
+    function img = buildSkeletonMaskedImage(src, skeletonPoints, halfWidthM)
+        img = src;
+        [hImg, wImg, ~] = size(src);
+        keep = false(hImg, wImg);
+        halfWidthSq = halfWidthM * halfWidthM;
+        xs = ((1:wImg) - 0.5) * app.scaleM;
+        for sIdx = 1:(size(skeletonPoints, 1) - 1)
+            a = skeletonPoints(sIdx, :);
+            b = skeletonPoints(sIdx + 1, :);
+            minX = min(a(1), b(1)) - halfWidthM;
+            maxX = max(a(1), b(1)) + halfWidthM;
+            minY = min(a(2), b(2)) - halfWidthM;
+            maxY = max(a(2), b(2)) + halfWidthM;
+            cols = find(xs >= minX & xs <= maxX);
+            if isempty(cols)
+                continue;
+            end
+            ab = b - a;
+            den = ab(1) * ab(1) + ab(2) * ab(2);
+            for row = 1:hImg
+                yReal = (hImg - row + 0.5) * app.scaleM;
+                if yReal < minY || yReal > maxY
+                    continue;
+                end
+                px = xs(cols);
+                py = yReal * ones(size(px));
+                if den == 0
+                    qx = a(1) * ones(size(px));
+                    qy = a(2) * ones(size(px));
+                else
+                    t = ((px - a(1)) * ab(1) + (py - a(2)) * ab(2)) / den;
+                    t(t < 0) = 0;
+                    t(t > 1) = 1;
+                    qx = a(1) + t * ab(1);
+                    qy = a(2) + t * ab(2);
+                end
+                distSq = (px - qx).^2 + (py - qy).^2;
+                keep(row, cols(distSq <= halfWidthSq)) = true;
+            end
         end
         for k = 1:3
             plane = img(:, :, k);
