@@ -1,6 +1,6 @@
 # Octave Validation Summary
 
-Date: 2026-06-07  
+Date: 2026-06-11
 Validator: GNU Octave 11.1.0 portable on Windows  
 Project: Stony Brook University ISE333 User Interface Development Course Project  
 
@@ -23,11 +23,12 @@ Coverage:
 
 - Map image dimensions and RGB channel check.
 - Pixel-to-meter coordinate conversion.
-- Road network segment and node construction.
+- Manual road-corridor segment construction from `RoadModelDataPx.m`.
+- Dense 6 px navigable road-grid construction; current grid has more than 9000 navigable nodes.
 - Road-valid point acceptance.
 - Off-road point rejection for IV loading.
 - Arbitrary-point snapping for path planning.
-- Custom shortest path result sanity.
+- Custom A* shortest path result sanity on the road grid.
 - Local circular map mask center/outer-corner behavior.
 
 ## UI Smoke Validation

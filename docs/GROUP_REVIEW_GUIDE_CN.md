@@ -21,7 +21,7 @@ main
 
 1. 点击 `Load Map`，确认地图显示。
 2. 在 `Inspect` 模式点击地图，确认坐标更新。
-3. 勾选 `Road Model`，观察道路模型。
+3. 勾选 `Road Model`，观察道路中心线和蓝色道路网格点是否贴合真实道路。
 4. 勾选 `Auto align road`，点击 `Add IV by Click`，在道路上加载 IV。
 5. 选择 IV 后点击 `Report IVs`。
 6. 使用 `2-Point Distance` 点击两点，查看距离日志。
@@ -30,7 +30,7 @@ main
 9. 使用 `Extract Skeleton` 点击道路点，再勾选 `Skeleton Road`。
 10. 输入 `Local r(m)` 并点击 `Local`，确认只显示选中 IV 周围圆形地图。
 11. 点击 `Street View` 后点击道路点，确认生成街景窗口。
-12. 点击 `Path Plan` 后点击两个地图点，确认最短路径显示。
+12. 点击 `Path Plan` 后点击两个地图点，确认最短路径沿道路网格显示，不穿过建筑、湖面或草地。
 
 ## 3. Octave 快速验收
 

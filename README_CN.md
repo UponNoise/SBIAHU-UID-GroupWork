@@ -18,6 +18,7 @@
 .
 ├── main.m                              # 课程要求的启动脚本
 ├── RunIntelligentNavigationUI.m         # UI 和核心功能实现
+├── RoadModelDataPx.m                    # 按像素坐标标注的道路走廊数据
 ├── MapForUI.jpg                         # 课程地图素材
 ├── validate_navigation_core.m           # 非 GUI 核心算法验收
 ├── validate_ui_smoke.m                  # UI 快速启动验收
@@ -27,6 +28,7 @@
 │   ├── DEVELOPMENT_LOG.md               # 开发日志
 │   ├── PROJECT_AUDIT_CN.md              # 中文任务覆盖审计
 │   ├── GROUP_REVIEW_GUIDE_CN.md         # 组员核验指南
+│   ├── road_rework/                     # 道路网格重做说明和路径示例
 │   └── report/                          # 技术报告和报告素材
 ├── submission/                          # 最终提交附件
 └── validation/logs/                     # Octave 验收记录
@@ -59,6 +61,8 @@ main
 - 按指定半径显示 IV 局部圆形地图
 - 生成简化虚拟街景
 - 在两个任意地图点之间规划最短道路路径
+
+路径规划已经改为“道路走廊 + 6 px 高精度可通行网格 + 自写 A*”。旧版稀疏中心线 Dijkstra 已废弃，因为它会在弯路和交叉口附近产生明显偏离。
 
 ## Octave 验收
 

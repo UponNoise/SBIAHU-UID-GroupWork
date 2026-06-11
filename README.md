@@ -17,8 +17,9 @@ Official course reference: [Stony Brook University ISE333 / CSE333 User Interfac
 
 - `main.m`: required main script. Run this file to launch the UI.
 - `RunIntelligentNavigationUI.m`: programmatic UI implementation and callbacks.
+- `RoadModelDataPx.m`: manually traced road-corridor data in map pixel coordinates.
 - `MapForUI.jpg`: required course map asset.
-- `validate_navigation_core.m`: non-GUI validation of map scale, road legality, snapping, shortest path, and local circular masking.
+- `validate_navigation_core.m`: non-GUI validation of map scale, road legality, 6 px road grid, snapping, shortest path, and local circular masking.
 - `validate_ui_smoke.m`: fast UI launch smoke test.
 - `README_CN.md`: Chinese project guide for group members.
 - `docs/`: technical report, design assets, Chinese audit notes, and development log.
@@ -48,6 +49,8 @@ After launch, all project operations are available through the UI:
 - Generate a simplified virtual street view.
 - Plan and visualize a shortest road path between two arbitrary map points.
 
+Path planning uses a manually traced road corridor model plus a dense 6 px navigable grid. The grid is searched with a custom A* implementation, avoiding MATLAB `graph` and `shortestpath`.
+
 ## Octave Validation
 
 GNU Octave 11.1.0 portable was used for local acceptance because MATLAB was not available on this machine.
@@ -62,6 +65,7 @@ Expected output:
 
 ```text
 CORE_VALIDATION_OK
+exit=0
 ```
 
 UI smoke validation:

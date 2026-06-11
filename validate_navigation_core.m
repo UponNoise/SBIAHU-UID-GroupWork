@@ -14,8 +14,10 @@ must(channels == 3, 'map must be an RGB image');
 network = validationBuildRoadNetwork(mapWidthPx, mapHeightPx, scaleM);
 must(size(network.segments, 1) > 60, 'road network should contain modeled road segments');
 must(size(network.nodes, 1) > 40, 'road network should contain network nodes');
+must(network.grid.stepPx == 6, 'road grid step should be 6 pixels for high precision');
+must(size(network.grid.nodes, 1) > 8000, 'road grid should contain dense navigable nodes');
 
-roadPoint = validationPxToMeters(1000, 404, mapHeightPx, scaleM);
+roadPoint = validationPxToMeters(1088, 435, mapHeightPx, scaleM);
 [validRoad, snappedRoad, roadSegIdx, roadDist] = validationNearestRoad(network, roadPoint);
 must(validRoad, 'known road point should be accepted');
 must(roadSegIdx > 0, 'known road point should find a road segment');
@@ -51,53 +53,8 @@ end
 end
 
 function network = validationBuildRoadNetwork(mapWidthPx, mapHeightPx, scaleM)
-segPx = [];
-
-segPx = validationAppendH(segPx, 162, [0 100 160 290 392 450 500 617 803 900 1090 1200 mapWidthPx], 18);
-segPx = validationAppendH(segPx, 298, [0 100 160 300 392 450 500 617 700 803 900 1090 1200 mapWidthPx], 18);
-segPx = validationAppendH(segPx, 404, [0 100 160 300 392 450 500 617 700 803 900 1000 1090 1200 mapWidthPx], 20);
-segPx = validationAppendH(segPx, 500, [0 100 160 300 392 450 500 617 700 803 900 1000 1090 1200 mapWidthPx], 16);
-segPx = validationAppendH(segPx, 686, [0 100 160 300 392 450 500 617 700 803 900 1000 1090 1200 mapWidthPx], 18);
-
-segPx = validationAppendV(segPx, 100, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = validationAppendV(segPx, 160, [0 162 298 404 500 686 mapHeightPx], 16);
-segPx = validationAppendV(segPx, 300, [162 298 404 500 686], 14);
-segPx = validationAppendV(segPx, 392, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = validationAppendV(segPx, 450, [0 162 298 404 500 686 mapHeightPx], 24);
-segPx = validationAppendV(segPx, 500, [0 162 298 404 500 686 mapHeightPx], 14);
-segPx = validationAppendV(segPx, 617, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = validationAppendV(segPx, 700, [298 404 500 686 mapHeightPx], 18);
-segPx = validationAppendV(segPx, 803, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = validationAppendV(segPx, 900, [162 298 404 500 686], 14);
-segPx = validationAppendV(segPx, 1000, [298 404 500 686], 14);
-segPx = validationAppendV(segPx, 1090, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = validationAppendV(segPx, 1200, [162 298 404 500 686 mapHeightPx], 18);
-
-segPx = validationAppendPolyline(segPx, [160 230 300 392], [404 470 500 686], 14);
-segPx = validationAppendPolyline(segPx, [392 300 230 160], [404 470 500 686], 14);
-segPx = validationAppendPolyline(segPx, [500 560 617], [686 610 500], 14);
-segPx = validationAppendPolyline(segPx, [617 660 700], [298 350 404], 14);
-segPx = validationAppendPolyline(segPx, [803 850 900], [298 350 404], 14);
-segPx = validationAppendPolyline(segPx, [900 1000 1090], [500 590 686], 14);
-segPx = validationAppendPolyline(segPx, [900 1000 1090], [298 230 162], 14);
-segPx = validationAppendPolyline(segPx, [1090 1200 mapWidthPx], [162 298 404], 18);
-segPx = validationAppendPolyline(segPx, [1090 1200 mapWidthPx], [686 500 404], 18);
-
-centerX = 1090;
-centerY = 404;
-radius = 145;
-angles = 0:30:360;
-xs = centerX + radius * cos(angles * pi / 180);
-ys = centerY + radius * sin(angles * pi / 180);
-segPx = validationAppendPolyline(segPx, xs, ys, 16);
-segPx = validationAppendPolyline(segPx, [centerX centerX], [centerY centerY - radius], 18);
-segPx = validationAppendPolyline(segPx, [centerX centerX], [centerY centerY + radius], 18);
-segPx = validationAppendPolyline(segPx, [centerX centerX - radius], [centerY centerY], 18);
-segPx = validationAppendPolyline(segPx, [centerX centerX + radius], [centerY centerY], 18);
-segPx = validationAppendPolyline(segPx, [centerX centerX - 105], [centerY centerY - 105], 16);
-segPx = validationAppendPolyline(segPx, [centerX centerX + 105], [centerY centerY - 105], 16);
-segPx = validationAppendPolyline(segPx, [centerX centerX - 105], [centerY centerY + 105], 16);
-segPx = validationAppendPolyline(segPx, [centerX centerX + 105], [centerY centerY + 105], 16);
+segPx = RoadModelDataPx();
+gridStepPx = 6;
 
 segments = zeros(size(segPx));
 for i = 1:size(segPx, 1)
@@ -117,6 +74,109 @@ end
 network.nodes = nodes;
 network.edges = edges;
 network.segments = segments;
+network.grid = validationBuildRoadGrid(segPx, mapWidthPx, mapHeightPx, scaleM, gridStepPx);
+end
+
+function grid = validationBuildRoadGrid(segPx, mapWidthPx, mapHeightPx, scaleM, stepPx)
+xs = 0:stepPx:mapWidthPx;
+if xs(end) ~= mapWidthPx
+    xs = [xs mapWidthPx];
+end
+ys = 0:stepPx:mapHeightPx;
+if ys(end) ~= mapHeightPx
+    ys = [ys mapHeightPx];
+end
+indexMap = zeros(length(ys), length(xs));
+tolerancePx = stepPx * 0.65;
+validMap = false(length(ys), length(xs));
+for sIdx = 1:size(segPx, 1)
+    a = segPx(sIdx, 1:2);
+    b = segPx(sIdx, 3:4);
+    halfWidth = segPx(sIdx, 5) / 2 + tolerancePx;
+    minX = max(0, min(a(1), b(1)) - halfWidth);
+    maxX = min(mapWidthPx, max(a(1), b(1)) + halfWidth);
+    minY = max(0, min(a(2), b(2)) - halfWidth);
+    maxY = min(mapHeightPx, max(a(2), b(2)) + halfWidth);
+    cols = find(xs >= minX & xs <= maxX);
+    rows = find(ys >= minY & ys <= maxY);
+    if isempty(cols) || isempty(rows)
+        continue;
+    end
+    ab = b - a;
+    den = ab(1) * ab(1) + ab(2) * ab(2);
+    for rIdx = 1:length(rows)
+        row = rows(rIdx);
+        px = xs(cols);
+        py = ys(row) * ones(size(px));
+        if den == 0
+            qx = a(1) * ones(size(px));
+            qy = a(2) * ones(size(px));
+        else
+            t = ((px - a(1)) * ab(1) + (py - a(2)) * ab(2)) / den;
+            t(t < 0) = 0;
+            t(t > 1) = 1;
+            qx = a(1) + t * ab(1);
+            qy = a(2) + t * ab(2);
+        end
+        distSq = (px - qx).^2 + (py - qy).^2;
+        validMap(row, cols(distSq <= halfWidth * halfWidth)) = true;
+    end
+end
+
+nodesPx = [];
+nodeRows = [];
+nodeCols = [];
+for row = 1:length(ys)
+    for col = 1:length(xs)
+        if validMap(row, col)
+            nodesPx(end + 1, :) = [xs(col) ys(row)];
+            nodeRows(end + 1) = row;
+            nodeCols(end + 1) = col;
+            indexMap(row, col) = size(nodesPx, 1);
+        end
+    end
+end
+
+nodesM = zeros(size(nodesPx));
+for i = 1:size(nodesPx, 1)
+    nodesM(i, :) = validationPxToMeters(nodesPx(i, 1), nodesPx(i, 2), mapHeightPx, scaleM);
+end
+
+grid.nodes = nodesM;
+grid.indexMap = indexMap;
+grid.nodeRows = nodeRows;
+grid.nodeCols = nodeCols;
+grid.xs = xs;
+grid.ys = ys;
+grid.stepPx = stepPx;
+end
+
+function valid = validationIsRoadPointPx(pt, segPx, tolerancePx)
+valid = false;
+for i = 1:size(segPx, 1)
+    [~, d] = validationProjectPointToSegmentPx(pt, segPx(i, 1:2), segPx(i, 3:4));
+    if d <= segPx(i, 5) / 2 + tolerancePx
+        valid = true;
+        return;
+    end
+end
+end
+
+function [q, d] = validationProjectPointToSegmentPx(p, a, b)
+ab = b - a;
+den = ab(1) * ab(1) + ab(2) * ab(2);
+if den == 0
+    q = a;
+else
+    t = ((p(1) - a(1)) * ab(1) + (p(2) - a(2)) * ab(2)) / den;
+    if t < 0
+        t = 0;
+    elseif t > 1
+        t = 1;
+    end
+    q = a + t * ab;
+end
+d = validationDistance(p, q);
 end
 
 function segPx = validationAppendH(segPx, y, xs, widthPx)
@@ -203,49 +263,97 @@ if startSegIdx == 0 || endSegIdx == 0
     return;
 end
 
-nBase = size(network.nodes, 1);
-startNode = nBase + 1;
-endNode = nBase + 2;
-nodes = [network.nodes; snappedStart; snappedEnd];
-n = size(nodes, 1);
-adj = inf(n, n);
-for i = 1:n
-    adj(i, i) = 0;
-end
-
-for i = 1:size(network.edges, 1)
-    a = network.edges(i, 1);
-    b = network.edges(i, 2);
-    d = network.edges(i, 3);
-    adj(a, b) = min(adj(a, b), d);
-    adj(b, a) = min(adj(b, a), d);
-end
-
-adj = validationConnectProjection(adj, network, startNode, snappedStart, startSegIdx);
-adj = validationConnectProjection(adj, network, endNode, snappedEnd, endSegIdx);
-if startSegIdx == endSegIdx
-    d = validationDistance(snappedStart, snappedEnd);
-    adj(startNode, endNode) = min(adj(startNode, endNode), d);
-    adj(endNode, startNode) = min(adj(endNode, startNode), d);
-end
-
-[dist, prev] = validationDijkstra(adj, startNode);
-if isinf(dist(endNode))
+startNode = validationNearestGridNode(network, snappedStart);
+endNode = validationNearestGridNode(network, snappedEnd);
+if startNode == 0 || endNode == 0
     return;
 end
+[idxPath, gridLength, gridOk] = validationAstarRoadGrid(network, startNode, endNode);
+if ~gridOk
+    return;
+end
+gridRoute = network.grid.nodes(idxPath, :);
+route = [snappedStart; gridRoute; snappedEnd];
+totalLength = gridLength + validationDistance(snappedStart, gridRoute(1, :)) + validationDistance(snappedEnd, gridRoute(end, :));
+ok = true;
+end
 
-idxPath = endNode;
-current = endNode;
-while current ~= startNode
-    current = prev(current);
-    if current == 0
+function idx = validationNearestGridNode(network, pt)
+idx = 0;
+best = inf;
+for i = 1:size(network.grid.nodes, 1)
+    d = validationDistance(network.grid.nodes(i, :), pt);
+    if d < best
+        best = d;
+        idx = i;
+    end
+end
+end
+
+function [idxPath, totalLength, ok] = validationAstarRoadGrid(network, startNode, endNode)
+n = size(network.grid.nodes, 1);
+gScore = inf(1, n);
+fScore = inf(1, n);
+prev = zeros(1, n);
+closedSet = false(1, n);
+gScore(startNode) = 0;
+fScore(startNode) = validationDistance(network.grid.nodes(startNode, :), network.grid.nodes(endNode, :));
+openNodes = startNode;
+openScores = fScore(startNode);
+ok = false;
+totalLength = inf;
+idxPath = [];
+dirs = [-1 -1; -1 0; -1 1; 0 -1; 0 1; 1 -1; 1 0; 1 1];
+while ~isempty(openNodes)
+    [~, pos] = min(openScores);
+    u = openNodes(pos);
+    openNodes(pos) = [];
+    openScores(pos) = [];
+    if closedSet(u)
+        continue;
+    end
+    if u == endNode
+        idxPath = endNode;
+        current = endNode;
+        while current ~= startNode
+            current = prev(current);
+            if current == 0
+                idxPath = [];
+                return;
+            end
+            idxPath = [current idxPath];
+        end
+        totalLength = gScore(endNode);
+        ok = true;
         return;
     end
-    idxPath = [current idxPath];
+    closedSet(u) = true;
+    row = network.grid.nodeRows(u);
+    col = network.grid.nodeCols(u);
+    for k = 1:size(dirs, 1)
+        rr = row + dirs(k, 1);
+        cc = col + dirs(k, 2);
+        if rr < 1 || rr > length(network.grid.ys) || cc < 1 || cc > length(network.grid.xs)
+            continue;
+        end
+        v = network.grid.indexMap(rr, cc);
+        if v == 0
+            continue;
+        end
+        if closedSet(v)
+            continue;
+        end
+        tentative = gScore(u) + validationDistance(network.grid.nodes(u, :), network.grid.nodes(v, :));
+        if tentative >= gScore(v)
+            continue;
+        end
+        prev(v) = u;
+        gScore(v) = tentative;
+        fScore(v) = tentative + validationDistance(network.grid.nodes(v, :), network.grid.nodes(endNode, :));
+        openNodes(end + 1) = v;
+        openScores(end + 1) = fScore(v);
+    end
 end
-route = nodes(idxPath, :);
-totalLength = dist(endNode);
-ok = true;
 end
 
 function adj = validationConnectProjection(adj, network, nodeIdx, pt, segmentIdx)

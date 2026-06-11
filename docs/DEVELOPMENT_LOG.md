@@ -17,9 +17,9 @@
 
 - Built `main.m` as the required startup script.
 - Built `RunIntelligentNavigationUI.m` as the programmatic MATLAB UI.
-- Modeled campus roads as a manual centerline network with explicit segment widths.
+- Modeled campus roads as manually traced road corridors with explicit segment widths.
 - Implemented IV loading, road validity checking, orientation, removal, reports, distance, trajectory length, map rotation, road skeleton, local circular view, automatic road alignment, IV-up view, virtual street view, and path planning.
-- Implemented custom Dijkstra shortest path logic instead of MATLAB `graph` or `shortestpath`.
+- Replaced sparse centerline path planning with a dense 6 px navigable road grid and custom A* search instead of MATLAB `graph` or `shortestpath`.
 - Avoided App Designer, `uifigure`, advanced image-processing built-ins, and advanced graph built-ins.
 
 ### Group Information
@@ -78,10 +78,21 @@ Current UI smoke behavior:
 - Added Chinese project README, requirement audit, and group review guide.
 - Rebuilt `submission/IntelligentNavigationUI_MatlabScripts.zip` after the UI smoke script update.
 
+### 2026-06-11 Road Model Rework
+
+- Re-read `UID_CourseProject.pdf` and confirmed that only roads in `MapForUI.jpg` are navigable.
+- Reviewed `practice/Practice03`, `practice/Practice04`, and `practice/Practice05` as references. Practice05 supports the current programmatic `figure`/`axes`/`uicontrol` implementation style; Practice03/04 support the coordinate geometry and simplified camera/street-view reasoning.
+- Removed the previous sparse grid-like road model because it visibly crossed buildings, green areas, and water.
+- Added `RoadModelDataPx.m` as a single shared road-corridor data source in map pixel coordinates.
+- Switched path planning from sparse centerline Dijkstra to a 6 px road-grid A* search.
+- Updated `Road Model` visualization to show both traced road centerlines and sampled navigable grid nodes.
+- Regenerated `docs/report/assets/RoadModelOverlay.png` with the corrected road corridor/grid overlay.
+- Re-ran Octave validation: `validate_navigation_core` and `validate_ui_smoke` both returned `exit=0`.
+
 ### Optimization and Risk Notes
 
-- Road detection is manually modeled rather than automatically extracted from image color. This is more controllable for the course requirement and avoids using image-processing built-ins.
-- The road model is approximate; if the instructor expects exact road boundary recognition, the best upgrade is to add a UI-assisted road editing mode.
+- Road detection is manually modeled as road corridors rather than automatically extracted from image color. This keeps the implementation within the course's minimum-built-in-functions rule.
+- The 6 px road grid improves path fidelity, but the model still depends on the quality of manual road tracing. If a specific road segment is judged off, update `RoadModelDataPx.m`.
 - Virtual street view is a simplified generated scene rather than photorealistic rendering, because the project map has no real street-view imagery.
 - UI runtime should be finally checked in MATLAB when available, because Octave graphics behavior is not identical to MATLAB.
 

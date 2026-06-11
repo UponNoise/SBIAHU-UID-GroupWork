@@ -711,6 +711,10 @@ redraw();
     end
 
     function drawRoadModel()
+        gridPts = app.network.grid.nodes(1:3:end, :);
+        gridPts = rotatePolyline(gridPts);
+        plot(app.ax, gridPts(:, 1), gridPts(:, 2), '.', ...
+            'Color', [0.1 0.25 0.9], 'MarkerSize', 2);
         for i = 1:size(app.network.segments, 1)
             s = app.network.segments(i, :);
             p1 = displayPoint([s(1), s(2)]);
@@ -974,53 +978,8 @@ redraw();
 end
 
 function network = buildRoadNetwork(mapWidthPx, mapHeightPx, scaleM)
-segPx = [];
-
-segPx = appendH(segPx, 162, [0 100 160 290 392 450 500 617 803 900 1090 1200 mapWidthPx], 18);
-segPx = appendH(segPx, 298, [0 100 160 300 392 450 500 617 700 803 900 1090 1200 mapWidthPx], 18);
-segPx = appendH(segPx, 404, [0 100 160 300 392 450 500 617 700 803 900 1000 1090 1200 mapWidthPx], 20);
-segPx = appendH(segPx, 500, [0 100 160 300 392 450 500 617 700 803 900 1000 1090 1200 mapWidthPx], 16);
-segPx = appendH(segPx, 686, [0 100 160 300 392 450 500 617 700 803 900 1000 1090 1200 mapWidthPx], 18);
-
-segPx = appendV(segPx, 100, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = appendV(segPx, 160, [0 162 298 404 500 686 mapHeightPx], 16);
-segPx = appendV(segPx, 300, [162 298 404 500 686], 14);
-segPx = appendV(segPx, 392, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = appendV(segPx, 450, [0 162 298 404 500 686 mapHeightPx], 24);
-segPx = appendV(segPx, 500, [0 162 298 404 500 686 mapHeightPx], 14);
-segPx = appendV(segPx, 617, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = appendV(segPx, 700, [298 404 500 686 mapHeightPx], 18);
-segPx = appendV(segPx, 803, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = appendV(segPx, 900, [162 298 404 500 686], 14);
-segPx = appendV(segPx, 1000, [298 404 500 686], 14);
-segPx = appendV(segPx, 1090, [0 162 298 404 500 686 mapHeightPx], 18);
-segPx = appendV(segPx, 1200, [162 298 404 500 686 mapHeightPx], 18);
-
-segPx = appendPolyline(segPx, [160 230 300 392], [404 470 500 686], 14);
-segPx = appendPolyline(segPx, [392 300 230 160], [404 470 500 686], 14);
-segPx = appendPolyline(segPx, [500 560 617], [686 610 500], 14);
-segPx = appendPolyline(segPx, [617 660 700], [298 350 404], 14);
-segPx = appendPolyline(segPx, [803 850 900], [298 350 404], 14);
-segPx = appendPolyline(segPx, [900 1000 1090], [500 590 686], 14);
-segPx = appendPolyline(segPx, [900 1000 1090], [298 230 162], 14);
-segPx = appendPolyline(segPx, [1090 1200 mapWidthPx], [162 298 404], 18);
-segPx = appendPolyline(segPx, [1090 1200 mapWidthPx], [686 500 404], 18);
-
-centerX = 1090;
-centerY = 404;
-radius = 145;
-angles = 0:30:360;
-xs = centerX + radius * cos(angles * pi / 180);
-ys = centerY + radius * sin(angles * pi / 180);
-segPx = appendPolyline(segPx, xs, ys, 16);
-segPx = appendPolyline(segPx, [centerX centerX], [centerY centerY - radius], 18);
-segPx = appendPolyline(segPx, [centerX centerX], [centerY centerY + radius], 18);
-segPx = appendPolyline(segPx, [centerX centerX - radius], [centerY centerY], 18);
-segPx = appendPolyline(segPx, [centerX centerX + radius], [centerY centerY], 18);
-segPx = appendPolyline(segPx, [centerX centerX - 105], [centerY centerY - 105], 16);
-segPx = appendPolyline(segPx, [centerX centerX + 105], [centerY centerY - 105], 16);
-segPx = appendPolyline(segPx, [centerX centerX - 105], [centerY centerY + 105], 16);
-segPx = appendPolyline(segPx, [centerX centerX + 105], [centerY centerY + 105], 16);
+segPx = RoadModelDataPx();
+gridStepPx = 6;
 
 segments = zeros(size(segPx));
 for i = 1:size(segPx, 1)
@@ -1040,28 +999,109 @@ end
 network.nodes = nodes;
 network.edges = edges;
 network.segments = segments;
+network.grid = buildRoadGrid(segPx, mapWidthPx, mapHeightPx, scaleM, gridStepPx);
 end
 
-function segPx = appendH(segPx, y, xs, widthPx)
-for k = 1:(length(xs) - 1)
-    segPx = appendSeg(segPx, xs(k), y, xs(k + 1), y, widthPx);
+function grid = buildRoadGrid(segPx, mapWidthPx, mapHeightPx, scaleM, stepPx)
+xs = 0:stepPx:mapWidthPx;
+if xs(end) ~= mapWidthPx
+    xs = [xs mapWidthPx];
+end
+ys = 0:stepPx:mapHeightPx;
+if ys(end) ~= mapHeightPx
+    ys = [ys mapHeightPx];
+end
+indexMap = zeros(length(ys), length(xs));
+tolerancePx = stepPx * 0.65;
+validMap = false(length(ys), length(xs));
+for sIdx = 1:size(segPx, 1)
+    a = segPx(sIdx, 1:2);
+    b = segPx(sIdx, 3:4);
+    halfWidth = segPx(sIdx, 5) / 2 + tolerancePx;
+    minX = max(0, min(a(1), b(1)) - halfWidth);
+    maxX = min(mapWidthPx, max(a(1), b(1)) + halfWidth);
+    minY = max(0, min(a(2), b(2)) - halfWidth);
+    maxY = min(mapHeightPx, max(a(2), b(2)) + halfWidth);
+    cols = find(xs >= minX & xs <= maxX);
+    rows = find(ys >= minY & ys <= maxY);
+    if isempty(cols) || isempty(rows)
+        continue;
+    end
+    ab = b - a;
+    den = ab(1) * ab(1) + ab(2) * ab(2);
+    for rIdx = 1:length(rows)
+        row = rows(rIdx);
+        px = xs(cols);
+        py = ys(row) * ones(size(px));
+        if den == 0
+            qx = a(1) * ones(size(px));
+            qy = a(2) * ones(size(px));
+        else
+            t = ((px - a(1)) * ab(1) + (py - a(2)) * ab(2)) / den;
+            t(t < 0) = 0;
+            t(t > 1) = 1;
+            qx = a(1) + t * ab(1);
+            qy = a(2) + t * ab(2);
+        end
+        distSq = (px - qx).^2 + (py - qy).^2;
+        validMap(row, cols(distSq <= halfWidth * halfWidth)) = true;
+    end
+end
+
+nodesPx = [];
+nodeRows = [];
+nodeCols = [];
+for row = 1:length(ys)
+    for col = 1:length(xs)
+        if validMap(row, col)
+            nodesPx(end + 1, :) = [xs(col) ys(row)];
+            nodeRows(end + 1) = row;
+            nodeCols(end + 1) = col;
+            indexMap(row, col) = size(nodesPx, 1);
+        end
+    end
+end
+
+nodesM = zeros(size(nodesPx));
+for i = 1:size(nodesPx, 1)
+    nodesM(i, :) = pxToMeters(nodesPx(i, 1), nodesPx(i, 2), mapHeightPx, scaleM);
+end
+
+grid.nodes = nodesM;
+grid.indexMap = indexMap;
+grid.nodeRows = nodeRows;
+grid.nodeCols = nodeCols;
+grid.xs = xs;
+grid.ys = ys;
+grid.stepPx = stepPx;
+end
+
+function valid = isRoadPointPx(pt, segPx, tolerancePx)
+valid = false;
+for i = 1:size(segPx, 1)
+    [~, d] = projectPointToSegmentPx(pt, segPx(i, 1:2), segPx(i, 3:4));
+    if d <= segPx(i, 5) / 2 + tolerancePx
+        valid = true;
+        return;
+    end
 end
 end
 
-function segPx = appendV(segPx, x, ys, widthPx)
-for k = 1:(length(ys) - 1)
-    segPx = appendSeg(segPx, x, ys(k), x, ys(k + 1), widthPx);
+function [q, d] = projectPointToSegmentPx(p, a, b)
+ab = b - a;
+den = ab(1) * ab(1) + ab(2) * ab(2);
+if den == 0
+    q = a;
+else
+    t = ((p(1) - a(1)) * ab(1) + (p(2) - a(2)) * ab(2)) / den;
+    if t < 0
+        t = 0;
+    elseif t > 1
+        t = 1;
+    end
+    q = a + t * ab;
 end
-end
-
-function segPx = appendPolyline(segPx, xs, ys, widthPx)
-for k = 1:(length(xs) - 1)
-    segPx = appendSeg(segPx, xs(k), ys(k), xs(k + 1), ys(k + 1), widthPx);
-end
-end
-
-function segPx = appendSeg(segPx, x1, y1, x2, y2, widthPx)
-segPx(end + 1, :) = [x1 y1 x2 y2 widthPx];
+d = euclideanDistance(p, q);
 end
 
 function [nodes, idx] = appendUniqueNode(nodes, pt)
@@ -1126,68 +1166,26 @@ if startSegIdx == 0 || endSegIdx == 0
     return;
 end
 
-nBase = size(network.nodes, 1);
-startNode = nBase + 1;
-endNode = nBase + 2;
-nodes = [network.nodes; snappedStart; snappedEnd];
-n = size(nodes, 1);
-adj = inf(n, n);
-for i = 1:n
-    adj(i, i) = 0;
-end
-
-for i = 1:size(network.edges, 1)
-    a = network.edges(i, 1);
-    b = network.edges(i, 2);
-    d = network.edges(i, 3);
-    adj(a, b) = min(adj(a, b), d);
-    adj(b, a) = min(adj(b, a), d);
-end
-
-connectProjection(startNode, snappedStart, startSegIdx);
-connectProjection(endNode, snappedEnd, endSegIdx);
-if startSegIdx == endSegIdx
-    d = euclideanDistance(snappedStart, snappedEnd);
-    adj(startNode, endNode) = min(adj(startNode, endNode), d);
-    adj(endNode, startNode) = min(adj(endNode, startNode), d);
-end
-
-[dist, prev] = dijkstra(adj, startNode);
-if isinf(dist(endNode))
+startNode = nearestGridNode(network, snappedStart);
+endNode = nearestGridNode(network, snappedEnd);
+if startNode == 0 || endNode == 0
     return;
 end
-
-idxPath = endNode;
-current = endNode;
-while current ~= startNode
-    current = prev(current);
-    if current == 0
-        return;
-    end
-    idxPath = [current idxPath];
+[idxPath, gridLength, gridOk] = astarRoadGrid(network, startNode, endNode);
+if ~gridOk
+    return;
 end
-route = nodes(idxPath, :);
-totalLength = dist(endNode);
+gridRoute = network.grid.nodes(idxPath, :);
+route = [snappedStart; gridRoute; snappedEnd];
+totalLength = gridLength + euclideanDistance(snappedStart, gridRoute(1, :)) + euclideanDistance(snappedEnd, gridRoute(end, :));
 ok = true;
-
-    function connectProjection(nodeIdx, pt, segmentIdx)
-        s = network.segments(segmentIdx, :);
-        n1 = findNodeIndex(network.nodes, s(1:2));
-        n2 = findNodeIndex(network.nodes, s(3:4));
-        d1 = euclideanDistance(pt, s(1:2));
-        d2 = euclideanDistance(pt, s(3:4));
-        adj(nodeIdx, n1) = min(adj(nodeIdx, n1), d1);
-        adj(n1, nodeIdx) = min(adj(n1, nodeIdx), d1);
-        adj(nodeIdx, n2) = min(adj(nodeIdx, n2), d2);
-        adj(n2, nodeIdx) = min(adj(n2, nodeIdx), d2);
-    end
 end
 
-function idx = findNodeIndex(nodes, pt)
-idx = 1;
+function idx = nearestGridNode(network, pt)
+idx = 0;
 best = inf;
-for i = 1:size(nodes, 1)
-    d = euclideanDistance(nodes(i, :), pt);
+for i = 1:size(network.grid.nodes, 1)
+    d = euclideanDistance(network.grid.nodes(i, :), pt);
     if d < best
         best = d;
         idx = i;
@@ -1195,33 +1193,68 @@ for i = 1:size(nodes, 1)
 end
 end
 
-function [dist, prev] = dijkstra(adj, startNode)
-n = size(adj, 1);
-dist = inf(1, n);
+function [idxPath, totalLength, ok] = astarRoadGrid(network, startNode, endNode)
+n = size(network.grid.nodes, 1);
+gScore = inf(1, n);
+fScore = inf(1, n);
 prev = zeros(1, n);
-visited = false(1, n);
-dist(startNode) = 0;
-for step = 1:n
-    best = inf;
-    u = 0;
-    for i = 1:n
-        if ~visited(i) && dist(i) < best
-            best = dist(i);
-            u = i;
-        end
+closedSet = false(1, n);
+gScore(startNode) = 0;
+fScore(startNode) = euclideanDistance(network.grid.nodes(startNode, :), network.grid.nodes(endNode, :));
+openNodes = startNode;
+openScores = fScore(startNode);
+ok = false;
+totalLength = inf;
+idxPath = [];
+dirs = [-1 -1; -1 0; -1 1; 0 -1; 0 1; 1 -1; 1 0; 1 1];
+while ~isempty(openNodes)
+    [~, pos] = min(openScores);
+    u = openNodes(pos);
+    openNodes(pos) = [];
+    openScores(pos) = [];
+    if closedSet(u)
+        continue;
     end
-    if u == 0
-        break;
-    end
-    visited(u) = true;
-    for v = 1:n
-        if ~visited(v) && ~isinf(adj(u, v))
-            alt = dist(u) + adj(u, v);
-            if alt < dist(v)
-                dist(v) = alt;
-                prev(v) = u;
+    if u == endNode
+        idxPath = endNode;
+        current = endNode;
+        while current ~= startNode
+            current = prev(current);
+            if current == 0
+                idxPath = [];
+                return;
             end
+            idxPath = [current idxPath];
         end
+        totalLength = gScore(endNode);
+        ok = true;
+        return;
+    end
+    closedSet(u) = true;
+    row = network.grid.nodeRows(u);
+    col = network.grid.nodeCols(u);
+    for k = 1:size(dirs, 1)
+        rr = row + dirs(k, 1);
+        cc = col + dirs(k, 2);
+        if rr < 1 || rr > length(network.grid.ys) || cc < 1 || cc > length(network.grid.xs)
+            continue;
+        end
+        v = network.grid.indexMap(rr, cc);
+        if v == 0
+            continue;
+        end
+        if closedSet(v)
+            continue;
+        end
+        tentative = gScore(u) + euclideanDistance(network.grid.nodes(u, :), network.grid.nodes(v, :));
+        if tentative >= gScore(v)
+            continue;
+        end
+        prev(v) = u;
+        gScore(v) = tentative;
+        fScore(v) = tentative + euclideanDistance(network.grid.nodes(v, :), network.grid.nodes(endNode, :));
+        openNodes(end + 1) = v;
+        openScores(end + 1) = fScore(v);
     end
 end
 end
