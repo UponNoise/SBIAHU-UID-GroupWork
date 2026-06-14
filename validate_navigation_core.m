@@ -14,8 +14,8 @@ must(channels == 3, 'map must be an RGB image');
 network = validationBuildRoadNetwork(mapWidthPx, mapHeightPx, scaleM);
 must(size(network.segments, 1) > 60, 'road network should contain modeled road segments');
 must(size(network.nodes, 1) > 40, 'road network should contain network nodes');
-must(network.grid.stepPx == 6, 'road grid step should be 6 pixels for high precision');
-must(size(network.grid.nodes, 1) > 8000, 'road grid should contain dense navigable nodes');
+must(network.grid.stepPx == 4, 'road grid step should be 4 pixels for high precision');
+must(size(network.grid.nodes, 1) > 18000, 'road grid should contain dense navigable nodes');
 
 roadPoint = validationPxToMeters(1088, 435, mapHeightPx, scaleM);
 [validRoad, snappedRoad, roadSegIdx, roadDist] = validationNearestRoad(network, roadPoint);
@@ -54,7 +54,7 @@ end
 
 function network = validationBuildRoadNetwork(mapWidthPx, mapHeightPx, scaleM)
 segPx = RoadModelDataPx();
-gridStepPx = 6;
+gridStepPx = 4;
 
 segments = zeros(size(segPx));
 for i = 1:size(segPx, 1)
@@ -352,61 +352,6 @@ while ~isempty(openNodes)
         fScore(v) = tentative + validationDistance(network.grid.nodes(v, :), network.grid.nodes(endNode, :));
         openNodes(end + 1) = v;
         openScores(end + 1) = fScore(v);
-    end
-end
-end
-
-function adj = validationConnectProjection(adj, network, nodeIdx, pt, segmentIdx)
-s = network.segments(segmentIdx, :);
-n1 = validationFindNodeIndex(network.nodes, s(1:2));
-n2 = validationFindNodeIndex(network.nodes, s(3:4));
-d1 = validationDistance(pt, s(1:2));
-d2 = validationDistance(pt, s(3:4));
-adj(nodeIdx, n1) = min(adj(nodeIdx, n1), d1);
-adj(n1, nodeIdx) = min(adj(n1, nodeIdx), d1);
-adj(nodeIdx, n2) = min(adj(nodeIdx, n2), d2);
-adj(n2, nodeIdx) = min(adj(n2, nodeIdx), d2);
-end
-
-function idx = validationFindNodeIndex(nodes, pt)
-idx = 1;
-best = inf;
-for i = 1:size(nodes, 1)
-    d = validationDistance(nodes(i, :), pt);
-    if d < best
-        best = d;
-        idx = i;
-    end
-end
-end
-
-function [dist, prev] = validationDijkstra(adj, startNode)
-n = size(adj, 1);
-dist = inf(1, n);
-prev = zeros(1, n);
-visited = false(1, n);
-dist(startNode) = 0;
-for step = 1:n
-    best = inf;
-    u = 0;
-    for i = 1:n
-        if ~visited(i) && dist(i) < best
-            best = dist(i);
-            u = i;
-        end
-    end
-    if u == 0
-        break;
-    end
-    visited(u) = true;
-    for v = 1:n
-        if ~visited(v) && ~isinf(adj(u, v))
-            alt = dist(u) + adj(u, v);
-            if alt < dist(v)
-                dist(v) = alt;
-                prev(v) = u;
-            end
-        end
     end
 end
 end

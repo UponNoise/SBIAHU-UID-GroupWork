@@ -979,7 +979,7 @@ end
 
 function network = buildRoadNetwork(mapWidthPx, mapHeightPx, scaleM)
 segPx = RoadModelDataPx();
-gridStepPx = 6;
+gridStepPx = 4;
 
 segments = zeros(size(segPx));
 for i = 1:size(segPx, 1)

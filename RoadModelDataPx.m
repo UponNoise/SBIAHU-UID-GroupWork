@@ -24,9 +24,7 @@ segPx = appendRoadPolyline(segPx, [805 805 805 805], [300 435 630 710], 16); % m
 segPx = appendRoadPolyline(segPx, [850 850 850 850 850], [166 300 435 630 710], 14); % river_west_road_850
 segPx = appendRoadPolyline(segPx, [455 520 610 705 805 850 900 980 1088], [300 300 300 300 300 300 300 300 300], 14); % middle_north_cross
 segPx = appendRoadPolyline(segPx, [705 805 850 980 1088], [630 630 630 630 630], 16); % middle_south_cross
-segPx = appendRoadPolyline(segPx, [520 555 610 660 705], [555 575 590 620 630], 12); % middle_lake_connector
 segPx = appendRoadPolyline(segPx, [610 680 750 805 850], [166 180 205 260 300], 12); % middle_north_curve
-segPx = appendRoadPolyline(segPx, [520 560 610 660 705], [710 655 610 585 555], 12); % middle_southwest_curve
 segPx = appendRoadPolyline(segPx, [1143 1141.1 1135.6 1126.9 1115.5 1102.2 1088 1073.8 1060.5 1049.1 1040.4 1034.9 1033 1034.9 1040.4 1049.1 1060.5 1073.8 1088 1102.2 1115.5 1126.9 1135.6 1141.1 1143], [435 449.2 462.5 473.9 482.6 488.1 490 488.1 482.6 473.9 462.5 449.2 435 420.8 407.5 396.1 387.4 381.9 380 381.9 387.4 396.1 407.5 420.8 435], 14); % central_roundabout
 segPx = appendRoadPolyline(segPx, [1088 1130 1175 1215 1220 1200 1190 1190], [166 190 245 330 435 540 630 710], 14); % east_outer_curve
 segPx = appendRoadPolyline(segPx, [1290 1290 1290 1290 1290], [250 300 435 560 710], 16); % east_inner_vertical
@@ -37,8 +35,6 @@ segPx = appendRoadPolyline(segPx, [1190 1240 1290 1345], [560 560 560 560], 12);
 segPx = appendRoadPolyline(segPx, [1088 1190 1290], [710 710 710], 16); % east_horizontal_710
 segPx = appendRoadPolyline(segPx, [1345 1345 1345 1345], [250 300 360 435], 12); % east_small_vertical
 segPx = appendRoadPolyline(segPx, [1380 1377.9 1371.8 1362.5 1351.1 1338.9 1327.5 1318.2 1312.1 1310 1312.1 1318.2 1327.5 1338.9 1351.1 1362.5 1371.8 1377.9 1380], [250 262 272.5 280.3 284.5 284.5 280.3 272.5 262 250 238 227.5 219.7 215.5 215.5 219.7 227.5 238 250], 10); % east_small_roundabout
-segPx = appendRoadPolyline(segPx, [960 960 960], [166 220 300], 10); % top_central_vertical_960
-segPx = appendRoadPolyline(segPx, [1040 1040 1040 1040 1040], [40 100 166 240 300], 10); % top_central_vertical_1040
 end
 
 function segPx = appendRoadPolyline(segPx, xs, ys, widthPx)

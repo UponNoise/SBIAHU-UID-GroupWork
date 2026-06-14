@@ -28,15 +28,15 @@
 | OR2 Scale and local visualization | 已补齐 | `IV scale` 控制 IV 显示比例；`Local r(m)` 严格按半径显示局部圆形地图 |
 | OR3 Auto aligned orientation | 已补齐 | `Auto align road` 根据最近道路段方向设置 IV；`IV Up` 旋转地图使 IV 朝上 |
 | OR4 Virtual street view | 已补齐 | `Street View` 对道路点生成简化街景窗口，显示道路点坐标和朝向 |
-| OR5 Path planning | 已补齐 | 两个任意地图点先吸附到最近道路点，再用 6 px 可通行道路网格和自写 A* 规划最短路 |
+| OR5 Path planning | 已补齐 | 两个任意地图点先吸附到最近道路点，再用 4 px 可通行道路网格和自写 A* 规划最短路 |
 
 ## 已完成的薄弱项修正
 
 1. OR1 原先只显示骨架线和道路带叠加，现在改为 `Skeleton Road` 模式下对地图做骨架道路带遮罩，骨架带外区域空白化，更接近“只显示附着于骨架的道路部分”。
 2. OR2 局部视图加入等比例显示和半径边界锁定，避免坐标轴自动缩放破坏指定半径。
 3. OR5 路径规划按要求接受任意地图点，不再要求起终点本身位于道路上。
-4. 道路规划已从旧版稀疏中心线/Dijkstra 改为 `RoadModelDataPx.m` 手工道路走廊 + 6 px 高精度可通行网格 + 自写 A*，减少弯路和交叉口附近的路径偏离。
-5. 增加 `validate_navigation_core.m`，覆盖地图尺寸、坐标换算、道路合法性、6 px 网格、吸附、路径规划和局部遮罩。
+4. 道路规划已从旧版稀疏中心线方案改为 `RoadModelDataPx.m` 手工道路走廊 + 4 px 高精度可通行网格 + 自写 A*，减少弯路和交叉口附近的路径偏离。
+5. 增加 `validate_navigation_core.m`，覆盖地图尺寸、坐标换算、道路合法性、4 px 网格、吸附、路径规划和局部遮罩。
 6. 增加 `validate_ui_smoke.m`，用于快速检查 UI 创建阶段是否抛出异常。
 
 ## 已知限制

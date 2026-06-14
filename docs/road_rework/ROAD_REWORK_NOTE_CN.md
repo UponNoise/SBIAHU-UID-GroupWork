@@ -13,8 +13,8 @@
 当前版本采用：
 
 - `RoadModelDataPx.m`：按 `MapForUI.jpg` 像素坐标人工标注道路走廊。
-- 6 px 可通行道路网格：根据道路走廊宽度生成密集可通行点。
-- 自写 A*：在 6 px 网格上搜索最短路径，避免使用 MATLAB `graph` 或 `shortestpath`。
+- 4 px 可通行道路网格：根据道路走廊宽度生成密集可通行点。
+- 自写 A*：在 4 px 网格上搜索最短路径，避免使用 MATLAB `graph` 或 `shortestpath`。
 
 这样保留了课程要求的可观察实现过程，同时比稀疏中心线更贴近地图道路。
 
