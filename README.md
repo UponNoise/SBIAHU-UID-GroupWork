@@ -5,9 +5,9 @@
 Course: ISE333 / CSE333 User Interface Development  
 Term: Spring 2026  
 Instructor: Hao Li  
-School: Stony Brook University  
-Group leader: You Shengxuan, R32314015  
-Group members: TBD Member 2, TBD Member 3, TBD Member 4, TBD Member 5  
+School: Anhui University  
+Group leader: You Shengxuan 
+Group members: …… 
 
 This repository contains the MATLAB course project for an intelligent vehicle navigation UI over the provided campus map `MapForUI.jpg`.
 
