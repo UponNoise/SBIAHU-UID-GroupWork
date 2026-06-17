@@ -34,7 +34,7 @@ main
 
 ## 3. Octave 快速验收
 
-如果没有 MATLAB，可以先用 Octave 做非 GUI 验收：
+如果没有 MATLAB，可以先用 Octave 做非 GUI 验收。下面命令使用组长本机的 portable Octave 示例路径；其他组员应按自己的安装位置替换，或在 `octave-cli` 已加入 PATH 时直接调用 `octave-cli`。
 
 ```powershell
 & "$env:USERPROFILE\Tools\Octave\octave-11.1.0-w64\mingw64\bin\octave-cli.exe" --no-gui --quiet --path . --eval "validate_navigation_core; exit(0);"

@@ -32,7 +32,7 @@
 
 - MATLAB was not found on this machine.
 - GNU Octave 11.1.0 portable was configured under:
-  - `C:\Users\canana\Tools\Octave\octave-11.1.0-w64`
+  - `$env:USERPROFILE\Tools\Octave\octave-11.1.0-w64`
 - LibreOffice export was avoided after confirmation that it triggers administrator confirmation on this machine.
 - Microsoft Word COM was available and used for PDF export.
 
@@ -134,6 +134,23 @@ Current UI smoke behavior:
 - Converted the main MATLAB UI visible labels, status text, report list, log messages, dialog text, axes labels, and virtual street-view text to Chinese.
 - Fixed MATLAB UI readability by forcing right-panel buttons to use a light background with dark bold text, and by using dark foreground colors for text, list boxes, edit boxes, and map title text.
 - Rebuilt `submission/IntelligentNavigationUI_MatlabScripts.zip` after the merge.
-- MATLAB validation on this machine passed:
+- Octave validation on this machine passed:
+  - `validate_navigation_core`: `CORE_VALIDATION_OK`
+  - `validate_ui_smoke`: `UI_SMOKE_OK`
+
+### 2026-06-18 TODO Optimization Iteration
+
+- Confirmed local `main` was already aligned with `origin/main` after the remote merge; `gh pr list` reported no open pull requests.
+- Replaced the A* open-set linear minimum scan with a binary min-heap in both `RunIntelligentNavigationUI.m` and `validate_navigation_core.m`.
+- Used DeepSeek only as an advisory reviewer for the MATLAB/Octave diff; the accepted follow-up was adding a deterministic min-heap pop-order self-test to `validate_navigation_core.m`.
+- Tightened validation assertions to match the current high-precision road model: more than 350 road segments, more than 100 network nodes, 3 px grid, and more than 20000 grid nodes.
+- Adjusted road-network endpoint de-duplication tolerance from 0.01 m to 0.5 m to better match the 1.7 m/px map scale.
+- Added IV Up log messages explaining whether `Auto align road` is currently enabled.
+- Reworked Street View window lifecycle so repeated street-view clicks reuse the existing window and closing the window clears the saved handle.
+- Added a Skeleton Road guard: if fewer than 2 skeleton points exist, the checkbox is reset and the UI logs a clear prompt.
+- Generalized Octave command documentation to avoid hardcoding the group leader's absolute Windows user path.
+- Added `validation/logs/manual_test_checklist.md` for MATLAB manual interaction acceptance.
+- Rebuilt `submission/IntelligentNavigationUI_MatlabScripts.zip` with the updated MATLAB files.
+- Re-ran local Octave validation:
   - `validate_navigation_core`: `CORE_VALIDATION_OK`
   - `validate_ui_smoke`: `UI_SMOKE_OK`

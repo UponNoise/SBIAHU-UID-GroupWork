@@ -6,6 +6,33 @@
 
 ---
 
+## 2026-06-18 自动迭代状态
+
+本轮已处理可在本机完成的 TODO：
+
+- TODO-03：开发日志已补充 2026-06-17 与 2026-06-18 记录。
+- TODO-05：A* open 集从线性最小值扫描改为二叉最小堆，降低长路径搜索卡顿风险。
+- TODO-05 补充：DeepSeek 作为辅助 reviewer 提醒需验证 heap 正确性，已在 `validate_navigation_core.m` 中增加确定性最小堆弹出顺序自测。
+- TODO-06：验证阈值已按 408 段道路和 3 px 网格更新。
+- TODO-07：Octave 示例路径已改为 `$env:USERPROFILE` 形式，并补充 PATH 说明。
+- TODO-08：IV Up 操作已在日志中提示当前 auto-align 状态。
+- TODO-09：Street View 改为复用同一窗口，并添加关闭回调日志。
+- TODO-10：节点去重容差从 0.01 m 调整为 0.5 m。
+- TODO-11：Skeleton Road 单点时自动取消勾选并提示至少需要 2 个骨架点。
+- TODO-12：已新增 `validation/logs/manual_test_checklist.md`。
+
+本轮部分处理：
+
+- TODO-02：`submission/IntelligentNavigationUI_MatlabScripts.zip` 已重建；技术报告 DOCX/PDF 仍需在真实组员信息填写后最终导出。
+
+仍需外部信息或人工环境：
+
+- TODO-01：Member 2-5 姓名、学号和分工仍需用户提供。
+- TODO-04：MATLAB 人工交互验收仍需有 MATLAB 的组员运行。
+- TODO-13 / TODO-14：当前不阻塞提交，保留为低风险后续优化项。
+
+---
+
 ## 🔴 高优先级（提交前必须解决）
 
 ### TODO-01 组员姓名与学号填写
@@ -200,4 +227,5 @@
 
 | 日期 | 更新内容 |
 |------|----------|
+| 2026-06-18 | 自动处理本机可完成 TODO，重建脚本 zip，新增人工验收清单 |
 | 2026-06-17 | 初始审查，产生 14 项 TODO |

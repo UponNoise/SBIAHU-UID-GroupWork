@@ -67,10 +67,10 @@ main
 
 ## Octave 验收
 
-本机没有 MATLAB，所以用 GNU Octave 11.1.0 portable 做了验收。Octave 路径：
+本机没有 MATLAB，所以用 GNU Octave 11.1.0 portable 做了验收。示例路径如下，其他组员按自己的安装位置替换；如果 `octave-cli` 已加入 PATH，也可以直接使用 `octave-cli`。
 
 ```text
-C:\Users\canana\Tools\Octave\octave-11.1.0-w64
+$env:USERPROFILE\Tools\Octave\octave-11.1.0-w64
 ```
 
 核心算法验收命令：

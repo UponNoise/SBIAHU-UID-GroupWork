@@ -28,6 +28,8 @@ app.localVehicleId = [];
 app.showSkeletonBand = false;
 app.logLines = {};
 app.lastPoint = [];
+app.streetViewFig = [];
+app.streetViewAx = [];
 
 createUi();
 addLog('界面已启动。请通过地图点击和右侧控件进行操作。');
@@ -553,6 +555,11 @@ redraw();
         app.mapRotation = normalizeAngle(90 - app.vehicles(idx).theta);
         set(app.h.rotationEdit, 'String', sprintf('%.1f', app.mapRotation));
         addLog(sprintf('地图已旋转，使车辆 %d 的车头朝上。', app.vehicles(idx).id));
+        if get(app.h.autoAlign, 'Value') == 1
+            addLog('提示：自动道路对齐已开启；车头向上只旋转视图，不改变后续车辆的自动朝向。');
+        else
+            addLog('提示：自动道路对齐已关闭；车头向上只旋转视图，不改变车辆自身朝向。');
+        end
         redraw();
     end
 
@@ -594,6 +601,13 @@ redraw();
 
     function onSkeletonBand()
         app.showSkeletonBand = get(app.h.skeletonBand, 'Value') == 1;
+        if app.showSkeletonBand && size(app.skeletonPoints, 1) < 2
+            app.showSkeletonBand = false;
+            set(app.h.skeletonBand, 'Value', 0);
+            addLog('骨架道路显示至少需要 2 个骨架点。');
+            redraw();
+            return;
+        end
         redraw();
     end
 
@@ -643,13 +657,28 @@ redraw();
         theta = segmentAngle(app.network.segments(segIdx, :));
         roadWidth = min(max(app.network.segments(segIdx, 5), 10), 24);
         heading = normalizeAngle(theta);
-        f = figure('Name', '虚拟街景', ...
-            'NumberTitle', 'off', ...
-            'MenuBar', 'none', ...
-            'ToolBar', 'none', ...
-            'Color', [0.90 0.94 0.97], ...
-            'Position', [180 120 760 460]);
+        if ~isempty(app.streetViewFig) && ishandle(app.streetViewFig)
+            f = app.streetViewFig;
+            figure(f);
+            clf(f);
+            set(f, 'Name', '虚拟街景', ...
+                'NumberTitle', 'off', ...
+                'MenuBar', 'none', ...
+                'ToolBar', 'none', ...
+                'Color', [0.90 0.94 0.97], ...
+                'CloseRequestFcn', @onStreetViewClose);
+        else
+            f = figure('Name', '虚拟街景', ...
+                'NumberTitle', 'off', ...
+                'MenuBar', 'none', ...
+                'ToolBar', 'none', ...
+                'Color', [0.90 0.94 0.97], ...
+                'Position', [180 120 760 460], ...
+                'CloseRequestFcn', @onStreetViewClose);
+            app.streetViewFig = f;
+        end
         ax = axes('Parent', f, 'Units', 'normalized', 'Position', [0.06 0.08 0.88 0.84]);
+        app.streetViewAx = ax;
         hold(ax, 'on');
         axis(ax, [0 100 0 64]);
         axis(ax, 'off');
@@ -748,6 +777,15 @@ redraw();
             text(cx, cy - 7.2, '航向', 'Parent', ax, 'HorizontalAlignment', 'center', ...
                 'FontSize', 7, 'Color', [0.04 0.20 0.32]);
         end
+    end
+
+    function onStreetViewClose(src, ~)
+        if ishandle(src)
+            delete(src);
+        end
+        app.streetViewFig = [];
+        app.streetViewAx = [];
+        addLog('虚拟街景窗口已关闭。');
     end
 
     function onReportVehicles(~, ~)
@@ -1238,7 +1276,7 @@ end
 function [nodes, idx] = appendUniqueNode(nodes, pt)
 idx = 0;
 for j = 1:size(nodes, 1)
-    if euclideanDistance(nodes(j, :), pt) < 0.01
+    if euclideanDistance(nodes(j, :), pt) <= 0.5
         idx = j;
         return;
     end
@@ -1332,18 +1370,17 @@ prev = zeros(1, n);
 closedSet = false(1, n);
 gScore(startNode) = 0;
 fScore(startNode) = euclideanDistance(network.grid.nodes(startNode, :), network.grid.nodes(endNode, :));
-openNodes = startNode;
-openScores = fScore(startNode);
+[openNodes, openScores] = pushMinHeap([], [], startNode, fScore(startNode));
 ok = false;
 totalLength = inf;
 idxPath = [];
 dirs = [-1 -1; -1 0; -1 1; 0 -1; 0 1; 1 -1; 1 0; 1 1];
 while ~isempty(openNodes)
-    [~, pos] = min(openScores);
-    u = openNodes(pos);
-    openNodes(pos) = [];
-    openScores(pos) = [];
+    [openNodes, openScores, u, currentScore] = popMinHeap(openNodes, openScores);
     if closedSet(u)
+        continue;
+    end
+    if currentScore > fScore(u) + 1e-9
         continue;
     end
     if u == endNode
@@ -1384,9 +1421,64 @@ while ~isempty(openNodes)
         prev(v) = u;
         gScore(v) = tentative;
         fScore(v) = tentative + euclideanDistance(network.grid.nodes(v, :), network.grid.nodes(endNode, :));
-        openNodes(end + 1) = v;
-        openScores(end + 1) = fScore(v);
+        [openNodes, openScores] = pushMinHeap(openNodes, openScores, v, fScore(v));
     end
+end
+end
+
+function [nodes, scores] = pushMinHeap(nodes, scores, node, score)
+nodes(end + 1) = node;
+scores(end + 1) = score;
+idx = length(nodes);
+while idx > 1
+    parent = floor(idx / 2);
+    if scores(parent) <= scores(idx)
+        break;
+    end
+    tmpNode = nodes(parent);
+    tmpScore = scores(parent);
+    nodes(parent) = nodes(idx);
+    scores(parent) = scores(idx);
+    nodes(idx) = tmpNode;
+    scores(idx) = tmpScore;
+    idx = parent;
+end
+end
+
+function [nodes, scores, node, score] = popMinHeap(nodes, scores)
+node = nodes(1);
+score = scores(1);
+lastNode = nodes(end);
+lastScore = scores(end);
+nodes(end) = [];
+scores(end) = [];
+if isempty(nodes)
+    return;
+end
+nodes(1) = lastNode;
+scores(1) = lastScore;
+idx = 1;
+count = length(nodes);
+while true
+    left = idx * 2;
+    right = left + 1;
+    smallest = idx;
+    if left <= count && scores(left) < scores(smallest)
+        smallest = left;
+    end
+    if right <= count && scores(right) < scores(smallest)
+        smallest = right;
+    end
+    if smallest == idx
+        break;
+    end
+    tmpNode = nodes(idx);
+    tmpScore = scores(idx);
+    nodes(idx) = nodes(smallest);
+    scores(idx) = scores(smallest);
+    nodes(smallest) = tmpNode;
+    scores(smallest) = tmpScore;
+    idx = smallest;
 end
 end
 

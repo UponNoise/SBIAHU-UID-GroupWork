@@ -54,7 +54,7 @@ Path planning uses a road corridor model extracted from the `#00FF00` width-mark
 
 ## Octave Validation
 
-GNU Octave 11.1.0 portable was used for local acceptance because MATLAB was not available on this machine.
+GNU Octave 11.1.0 portable was used for local acceptance because MATLAB was not available on this machine. If Octave is installed elsewhere, replace the example path below; if `octave-cli` is in PATH, call `octave-cli` directly.
 
 Non-GUI core validation:
 

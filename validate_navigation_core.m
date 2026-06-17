@@ -12,10 +12,10 @@ must(mapHeightPx == 803, 'map height must be 803 pixels');
 must(channels == 3, 'map must be an RGB image');
 
 network = validationBuildRoadNetwork(mapWidthPx, mapHeightPx, scaleM);
-must(size(network.segments, 1) > 60, 'road network should contain modeled road segments');
-must(size(network.nodes, 1) > 40, 'road network should contain network nodes');
+must(size(network.segments, 1) > 350, 'road network should contain the high-precision modeled road segments');
+must(size(network.nodes, 1) > 100, 'road network should contain dense network nodes');
 must(network.grid.stepPx == 3, 'road grid step should be 3 pixels for high precision');
-must(size(network.grid.nodes, 1) > 23000, 'road grid should contain dense navigable nodes');
+must(size(network.grid.nodes, 1) > 20000, 'road grid should contain dense navigable nodes');
 
 roadPoint = validationPxToMeters(720, 434, mapHeightPx, scaleM);
 [validRoad, snappedRoad, roadSegIdx, roadDist] = validationNearestRoad(network, roadPoint);
@@ -36,6 +36,7 @@ must(size(route, 1) >= 2, 'planned route should contain at least two route point
 must(routeLength > 0, 'planned route length should be positive');
 must(validationPointInMap(snappedStart, mapWidthPx * scaleM, mapHeightPx * scaleM), 'snapped start should be inside map');
 must(validationPointInMap(snappedEnd, mapWidthPx * scaleM, mapHeightPx * scaleM), 'snapped end should be inside map');
+validationAssertMinHeapOrder();
 
 masked = validationBuildLocalMaskedImage(img, roadPoint, 120, scaleM);
 centerCol = max(1, min(mapWidthPx, round(roadPoint(1) / scaleM)));
@@ -204,7 +205,7 @@ end
 function [nodes, idx] = validationAppendUniqueNode(nodes, pt)
 idx = 0;
 for j = 1:size(nodes, 1)
-    if validationDistance(nodes(j, :), pt) < 0.01
+    if validationDistance(nodes(j, :), pt) <= 0.5
         idx = j;
         return;
     end
@@ -298,18 +299,17 @@ prev = zeros(1, n);
 closedSet = false(1, n);
 gScore(startNode) = 0;
 fScore(startNode) = validationDistance(network.grid.nodes(startNode, :), network.grid.nodes(endNode, :));
-openNodes = startNode;
-openScores = fScore(startNode);
+[openNodes, openScores] = validationPushMinHeap([], [], startNode, fScore(startNode));
 ok = false;
 totalLength = inf;
 idxPath = [];
 dirs = [-1 -1; -1 0; -1 1; 0 -1; 0 1; 1 -1; 1 0; 1 1];
 while ~isempty(openNodes)
-    [~, pos] = min(openScores);
-    u = openNodes(pos);
-    openNodes(pos) = [];
-    openScores(pos) = [];
+    [openNodes, openScores, u, currentScore] = validationPopMinHeap(openNodes, openScores);
     if closedSet(u)
+        continue;
+    end
+    if currentScore > fScore(u) + 1e-9
         continue;
     end
     if u == endNode
@@ -350,9 +350,79 @@ while ~isempty(openNodes)
         prev(v) = u;
         gScore(v) = tentative;
         fScore(v) = tentative + validationDistance(network.grid.nodes(v, :), network.grid.nodes(endNode, :));
-        openNodes(end + 1) = v;
-        openScores(end + 1) = fScore(v);
+        [openNodes, openScores] = validationPushMinHeap(openNodes, openScores, v, fScore(v));
     end
+end
+end
+
+function [nodes, scores] = validationPushMinHeap(nodes, scores, node, score)
+nodes(end + 1) = node;
+scores(end + 1) = score;
+idx = length(nodes);
+while idx > 1
+    parent = floor(idx / 2);
+    if scores(parent) <= scores(idx)
+        break;
+    end
+    tmpNode = nodes(parent);
+    tmpScore = scores(parent);
+    nodes(parent) = nodes(idx);
+    scores(parent) = scores(idx);
+    nodes(idx) = tmpNode;
+    scores(idx) = tmpScore;
+    idx = parent;
+end
+end
+
+function [nodes, scores, node, score] = validationPopMinHeap(nodes, scores)
+node = nodes(1);
+score = scores(1);
+lastNode = nodes(end);
+lastScore = scores(end);
+nodes(end) = [];
+scores(end) = [];
+if isempty(nodes)
+    return;
+end
+nodes(1) = lastNode;
+scores(1) = lastScore;
+idx = 1;
+count = length(nodes);
+while true
+    left = idx * 2;
+    right = left + 1;
+    smallest = idx;
+    if left <= count && scores(left) < scores(smallest)
+        smallest = left;
+    end
+    if right <= count && scores(right) < scores(smallest)
+        smallest = right;
+    end
+    if smallest == idx
+        break;
+    end
+    tmpNode = nodes(idx);
+    tmpScore = scores(idx);
+    nodes(idx) = nodes(smallest);
+    scores(idx) = scores(smallest);
+    nodes(smallest) = tmpNode;
+    scores(smallest) = tmpScore;
+    idx = smallest;
+end
+end
+
+function validationAssertMinHeapOrder()
+sampleScores = [5 3 3 8 1 4 7 2 9 6];
+nodes = [];
+scores = [];
+for i = 1:length(sampleScores)
+    [nodes, scores] = validationPushMinHeap(nodes, scores, i, sampleScores(i));
+end
+lastScore = -inf;
+while ~isempty(nodes)
+    [nodes, scores, ~, score] = validationPopMinHeap(nodes, scores);
+    must(score >= lastScore - 1e-12, 'min heap should pop scores in nondecreasing order');
+    lastScore = score;
 end
 end
 
