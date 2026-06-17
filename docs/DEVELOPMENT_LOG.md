@@ -119,3 +119,9 @@ Current UI smoke behavior:
 - Ask each member to run `main.m` and `validate_navigation_core.m`.
 - If MATLAB is available on a teammate machine, run `main.m` in MATLAB for final UI interaction QA.
 - Confirm who sends the final email to Prof. Li and watch for acknowledgement of reception.
+
+### 2026-06-17 Design Review
+
+- Conducted a comprehensive project design review covering all code, documentation, validation, and submission artifacts.
+- Identified 14 TODO items: 4 high-priority (team-member TBD names, submission package rebuild, missing log details, MATLAB acceptance), 6 medium-priority (A* efficiency, validation assertion thresholds, hardcoded paths, OR3 interaction, street-view lifecycle, node-merging tolerance), and 4 low-priority items.
+- Created `docs/DESIGN_REVIEW_TODO_CN.md` as the tracking document and linked it from `docs/PROJECT_AUDIT_CN.md`.

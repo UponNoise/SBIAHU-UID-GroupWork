@@ -49,3 +49,7 @@
 ## 当前结论
 
 除组员真实姓名和学号待填写外，课程 PDF 中的基础要求和五个 optional requirement 均已有对应实现、说明和可复核证据。
+
+## 设计审查 TODO
+
+2026-06-17 进行了全项目设计审查，共发现 14 项待改进问题（4 项高优先级、6 项中优先级、4 项低优先级），详见 [`DESIGN_REVIEW_TODO_CN.md`](./DESIGN_REVIEW_TODO_CN.md)。
