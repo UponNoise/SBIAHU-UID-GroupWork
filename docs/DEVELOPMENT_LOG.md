@@ -17,9 +17,9 @@
 
 - Built `main.m` as the required startup script.
 - Built `RunIntelligentNavigationUI.m` as the programmatic MATLAB UI.
-- Modeled campus roads as manually traced road corridors with explicit segment widths.
+- Modeled campus roads as explicit road corridors with segment widths.
 - Implemented IV loading, road validity checking, orientation, removal, reports, distance, trajectory length, map rotation, road skeleton, local circular view, automatic road alignment, IV-up view, virtual street view, and path planning.
-- Replaced sparse centerline path planning with a dense 4 px navigable road grid and custom A* search instead of MATLAB `graph` or `shortestpath`.
+- Replaced sparse centerline path planning with a dense 3 px navigable road grid and custom A* search instead of MATLAB `graph` or `shortestpath`.
 - Avoided App Designer, `uifigure`, advanced image-processing built-ins, and advanced graph built-ins.
 
 ### Group Information
@@ -84,7 +84,7 @@ Current UI smoke behavior:
 - Reviewed `practice/Practice03`, `practice/Practice04`, and `practice/Practice05` as references. Practice05 supports the current programmatic `figure`/`axes`/`uicontrol` implementation style; Practice03/04 support the coordinate geometry and simplified camera/street-view reasoning.
 - Removed the previous sparse grid-like road model because it visibly crossed buildings, green areas, and water.
 - Added `RoadModelDataPx.m` as a single shared road-corridor data source in map pixel coordinates.
-- Switched path planning from the sparse centerline path model to a 4 px road-grid A* search.
+- Switched path planning from the sparse centerline path model to a 3 px road-grid A* search.
 - Updated `Road Model` visualization to show both traced road centerlines and sampled navigable grid nodes.
 - Regenerated `docs/report/assets/RoadModelOverlay.png` with the corrected road corridor/grid overlay.
 - Re-ran Octave validation: `validate_navigation_core` and `validate_ui_smoke` both returned `exit=0`.
@@ -96,11 +96,21 @@ Current UI smoke behavior:
 - Regenerated `RoadModelOverlay.png`, `grid_path_example.png`, the technical report DOCX/PDF, and the MATLAB scripts zip.
 - Re-ran validation after the revision: 201 road segments, 18472 grid nodes, `CORE_VALIDATION_OK`, and `UI_SMOKE_OK`.
 
+### 2026-06-17 High-Precision Road Extraction and UI Revision
+
+- Synchronized the repository with remote `main`; no open GitHub PRs were found.
+- Used the newly added path-marked map image as the road-model source and added `tools/extract_road_model_from_marked_map.py` to reproduce the extraction.
+- Generated `RoadModelDataPx.m` from `#00FF00` green width road markings after allowing color tolerance for WeChat JPEG compression: 245 skeleton polylines and 370 road segments.
+- Estimated each road segment width from the green road area's distance transform; the extracted width range is 7.0-25.5 px.
+- Changed the navigable grid to 3 px; the resulting road grid has 23508 nodes.
+- Updated the virtual street view from a fixed drawing to a perspective projection based on road heading and road width.
+- Refined the main UI with a blue campus-map-service header inspired by the AHU campus map reference page.
+
 ### Optimization and Risk Notes
 
-- Road detection is manually modeled as road corridors rather than automatically extracted from image color. This keeps the implementation within the course's minimum-built-in-functions rule.
-- The 4 px road grid improves path fidelity, but the model still depends on the quality of manual road tracing. If a specific road segment is judged off, update `RoadModelDataPx.m`.
-- Virtual street view is a simplified generated scene rather than photorealistic rendering, because the project map has no real street-view imagery.
+- Road detection is extracted offline from the path-marked map; the MATLAB runtime still uses only the generated `.m` road data and basic mathematical procedures.
+- The 3 px road grid improves path fidelity, but the model still depends on the quality of the marked road reference. If a specific road segment is judged off, update the marked map or `RoadModelDataPx.m`, then rerun extraction and validation.
+- Virtual street view is a generated perspective scene rather than photorealistic rendering, because the project map has no real street-view imagery.
 - UI runtime should be finally checked in MATLAB when available, because Octave graphics behavior is not identical to MATLAB.
 
 ### Next Steps

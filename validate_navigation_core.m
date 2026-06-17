@@ -14,10 +14,10 @@ must(channels == 3, 'map must be an RGB image');
 network = validationBuildRoadNetwork(mapWidthPx, mapHeightPx, scaleM);
 must(size(network.segments, 1) > 60, 'road network should contain modeled road segments');
 must(size(network.nodes, 1) > 40, 'road network should contain network nodes');
-must(network.grid.stepPx == 4, 'road grid step should be 4 pixels for high precision');
-must(size(network.grid.nodes, 1) > 18000, 'road grid should contain dense navigable nodes');
+must(network.grid.stepPx == 3, 'road grid step should be 3 pixels for high precision');
+must(size(network.grid.nodes, 1) > 23000, 'road grid should contain dense navigable nodes');
 
-roadPoint = validationPxToMeters(1088, 435, mapHeightPx, scaleM);
+roadPoint = validationPxToMeters(463, 176, mapHeightPx, scaleM);
 [validRoad, snappedRoad, roadSegIdx, roadDist] = validationNearestRoad(network, roadPoint);
 must(validRoad, 'known road point should be accepted');
 must(roadSegIdx > 0, 'known road point should find a road segment');
@@ -54,7 +54,7 @@ end
 
 function network = validationBuildRoadNetwork(mapWidthPx, mapHeightPx, scaleM)
 segPx = RoadModelDataPx();
-gridStepPx = 4;
+gridStepPx = 3;
 
 segments = zeros(size(segPx));
 for i = 1:size(segPx, 1)

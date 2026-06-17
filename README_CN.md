@@ -18,7 +18,7 @@
 .
 ├── main.m                              # 课程要求的启动脚本
 ├── RunIntelligentNavigationUI.m         # UI 和核心功能实现
-├── RoadModelDataPx.m                    # 按像素坐标标注的道路走廊数据
+├── RoadModelDataPx.m                    # 从绿色宽道路标注图提取的道路走廊数据
 ├── MapForUI.jpg                         # 课程地图素材
 ├── validate_navigation_core.m           # 非 GUI 核心算法验收
 ├── validate_ui_smoke.m                  # UI 快速启动验收
@@ -30,6 +30,7 @@
 │   ├── GROUP_REVIEW_GUIDE_CN.md         # 组员核验指南
 │   ├── road_rework/                     # 道路网格重做说明和路径示例
 │   └── report/                          # 技术报告和报告素材
+├── tools/                               # 绿色宽道路标注图离线提取工具
 ├── submission/                          # 最终提交附件
 └── validation/logs/                     # Octave 验收记录
 ```
@@ -59,10 +60,10 @@ main
 - 只显示附着于骨架的粗略道路区域
 - 调整 IV 显示比例
 - 按指定半径显示 IV 局部圆形地图
-- 生成简化虚拟街景
+- 生成基于透视投影的虚拟街景
 - 在两个任意地图点之间规划最短道路路径
 
-路径规划已经改为“道路走廊 + 4 px 高精度可通行网格 + 自写 A*”。旧版稀疏中心线路径方案已移除，因为它会在弯路和交叉口附近产生明显偏离。
+路径规划已经改为“#00FF00 绿色宽道路标注图提取道路走廊 + 3 px 高精度可通行网格 + 自写 A*”。旧版稀疏中心线路径方案已移除，因为它会在弯路和交叉口附近产生明显偏离。
 
 ## Octave 验收
 

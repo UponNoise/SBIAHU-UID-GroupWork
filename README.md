@@ -17,12 +17,13 @@ Official course reference: [Stony Brook University ISE333 / CSE333 User Interfac
 
 - `main.m`: required main script. Run this file to launch the UI.
 - `RunIntelligentNavigationUI.m`: programmatic UI implementation and callbacks.
-- `RoadModelDataPx.m`: manually traced road-corridor data in map pixel coordinates.
+- `RoadModelDataPx.m`: road-corridor data extracted from the green width-marked map in pixel coordinates.
 - `MapForUI.jpg`: required course map asset.
-- `validate_navigation_core.m`: non-GUI validation of map scale, road legality, 4 px road grid, snapping, shortest path, and local circular masking.
+- `validate_navigation_core.m`: non-GUI validation of map scale, road legality, 3 px road grid, snapping, shortest path, and local circular masking.
 - `validate_ui_smoke.m`: fast UI launch smoke test.
 - `README_CN.md`: Chinese project guide for group members.
 - `docs/`: technical report, design assets, Chinese audit notes, and development log.
+- `tools/extract_road_model_from_marked_map.py`: offline helper that converts the green width-marked road image into `RoadModelDataPx.m`.
 - `submission/`: files prepared for course email submission.
 - `validation/logs/`: Octave validation summary and smoke-test markers.
 
@@ -46,10 +47,10 @@ After launch, all project operations are available through the UI:
 - Rotate the map by a user-entered degree.
 - Extract and visualize a manual road skeleton.
 - Adjust IV visualization scale and local circular map range.
-- Generate a simplified virtual street view.
+- Generate a perspective-based virtual street view.
 - Plan and visualize a shortest road path between two arbitrary map points.
 
-Path planning uses a manually traced road corridor model plus a dense 4 px navigable grid. The grid is searched with a custom A* implementation, avoiding MATLAB `graph` and `shortestpath`.
+Path planning uses a road corridor model extracted from the `#00FF00` width-marked map plus a dense 3 px navigable grid. The grid is searched with a custom A* implementation, avoiding MATLAB `graph` and `shortestpath`.
 
 ## Octave Validation
 
