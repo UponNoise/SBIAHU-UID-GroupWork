@@ -24,7 +24,7 @@ Coverage:
 - Map image dimensions and RGB channel check.
 - Pixel-to-meter coordinate conversion.
 - Extracted road-corridor segment construction from `RoadModelDataPx.m`.
-- Dense 3 px navigable road-grid construction; current grid has 23508 navigable nodes.
+- Dense 3 px navigable road-grid construction; current grid has 24069 navigable nodes.
 - Road-valid point acceptance.
 - Off-road point rejection for IV loading.
 - Arbitrary-point snapping for path planning.

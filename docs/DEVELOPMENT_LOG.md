@@ -100,9 +100,9 @@ Current UI smoke behavior:
 
 - Synchronized the repository with remote `main`; no open GitHub PRs were found.
 - Used the newly added path-marked map image as the road-model source and added `tools/extract_road_model_from_marked_map.py` to reproduce the extraction.
-- Generated `RoadModelDataPx.m` from `#00FF00` green width road markings after allowing color tolerance for WeChat JPEG compression: 245 skeleton polylines and 370 road segments.
-- Estimated each road segment width from the green road area's distance transform; the extracted width range is 7.0-25.5 px.
-- Changed the navigable grid to 3 px; the resulting road grid has 23508 nodes.
+- Generated `RoadModelDataPx.m` from `#00FF00` green width road markings after allowing color tolerance for WeChat JPEG compression: 283 skeleton polylines and 408 road segments.
+- Estimated each road segment width from the green road area's distance transform; the extracted width range is 7.0-26.2 px.
+- Changed the navigable grid to 3 px; the resulting road grid has 24069 nodes.
 - Updated the virtual street view from a fixed drawing to a perspective projection based on road heading and road width.
 - Refined the main UI with a blue campus-map-service header inspired by the AHU campus map reference page.
 

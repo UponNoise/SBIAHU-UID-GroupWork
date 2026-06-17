@@ -17,7 +17,7 @@ must(size(network.nodes, 1) > 40, 'road network should contain network nodes');
 must(network.grid.stepPx == 3, 'road grid step should be 3 pixels for high precision');
 must(size(network.grid.nodes, 1) > 23000, 'road grid should contain dense navigable nodes');
 
-roadPoint = validationPxToMeters(463, 176, mapHeightPx, scaleM);
+roadPoint = validationPxToMeters(720, 434, mapHeightPx, scaleM);
 [validRoad, snappedRoad, roadSegIdx, roadDist] = validationNearestRoad(network, roadPoint);
 must(validRoad, 'known road point should be accepted');
 must(roadSegIdx > 0, 'known road point should find a road segment');
