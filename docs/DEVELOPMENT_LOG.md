@@ -125,3 +125,15 @@ Current UI smoke behavior:
 - Conducted a comprehensive project design review covering all code, documentation, validation, and submission artifacts.
 - Identified 14 TODO items: 4 high-priority (team-member TBD names, submission package rebuild, missing log details, MATLAB acceptance), 6 medium-priority (A* efficiency, validation assertion thresholds, hardcoded paths, OR3 interaction, street-view lifecycle, node-merging tolerance), and 4 low-priority items.
 - Created `docs/DESIGN_REVIEW_TODO_CN.md` as the tracking document and linked it from `docs/PROJECT_AUDIT_CN.md`.
+
+### 2026-06-17 Chinese UI Merge and Road Source Refresh
+
+- Merged the latest remote `main` changes before editing, preserving the high-precision vectorized road model workflow and perspective street-view logic.
+- Replaced the road extraction input with the latest green road-width annotation image, including the newly added small road on the left side, then reran `tools/extract_road_model_from_marked_map.py`.
+- Regenerated `RoadModelDataPx.m` from the updated green annotation source: 283 skeleton polylines, 408 road segments, 3 px navigable road grid, and 24069 validation grid nodes.
+- Converted the main MATLAB UI visible labels, status text, report list, log messages, dialog text, axes labels, and virtual street-view text to Chinese.
+- Fixed MATLAB UI readability by forcing right-panel buttons to use a light background with dark bold text, and by using dark foreground colors for text, list boxes, edit boxes, and map title text.
+- Rebuilt `submission/IntelligentNavigationUI_MatlabScripts.zip` after the merge.
+- MATLAB validation on this machine passed:
+  - `validate_navigation_core`: `CORE_VALIDATION_OK`
+  - `validate_ui_smoke`: `UI_SMOKE_OK`
