@@ -154,3 +154,14 @@ Current UI smoke behavior:
 - Re-ran local Octave validation:
   - `validate_navigation_core`: `CORE_VALIDATION_OK`
   - `validate_ui_smoke`: `UI_SMOKE_OK`
+
+### 2026-06-18 Local Runtime and Plugin Diagnostics
+
+- Confirmed full MATLAB is not installed on this machine; `winget` only offers MATLAB Runtime/Connector, which cannot run or debug this `.m` GUI source as a MATLAB IDE replacement.
+- Created `C:\Tools\matlab-lite` command shims for the existing GNU Octave 11.1.0 portable install.
+- Detected that `octave-gui.exe` fails fast on this workstation; changed the local visible launcher to use `octave-cli.exe --persist`, which successfully opens the project figure window.
+- Added `RunProject_OctaveGUI.cmd`, `RunValidation_Octave.cmd`, and `docs/LOCAL_ENVIRONMENT_CN.md`.
+- Re-ran `RunValidation_Octave.cmd`: `CORE_VALIDATION_OK` and `UI_SMOKE_OK`.
+- Verified a visible `ISE 333 智能导航界面` window starts through the new launcher.
+- Checked Browser/ComputerUse: local runtime files and native pipes exist, but the current Codex session does not expose callable Browser or Computer Use tools, and no exact install candidate is available through the plugin installer.
+- Installed Playwright Chromium for the `node_repl` fallback and verified headless browser automation works.

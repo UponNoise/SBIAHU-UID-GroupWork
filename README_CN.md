@@ -22,12 +22,15 @@
 ├── MapForUI.jpg                         # 课程地图素材
 ├── validate_navigation_core.m           # 非 GUI 核心算法验收
 ├── validate_ui_smoke.m                  # UI 快速启动验收
+├── RunProject_OctaveGUI.cmd             # 本机 Octave 可见窗口启动入口
+├── RunValidation_Octave.cmd             # 本机 Octave 一键验证入口
 ├── README.md                            # 英文说明
 ├── README_CN.md                         # 中文说明
 ├── docs/
 │   ├── DEVELOPMENT_LOG.md               # 开发日志
 │   ├── PROJECT_AUDIT_CN.md              # 中文任务覆盖审计
 │   ├── GROUP_REVIEW_GUIDE_CN.md         # 组员核验指南
+│   ├── LOCAL_ENVIRONMENT_CN.md          # 本机 MATLAB/Octave 与插件状态
 │   ├── road_rework/                     # 道路网格重做说明和路径示例
 │   └── report/                          # 技术报告和报告素材
 ├── tools/                               # 绿色宽道路标注图离线提取工具
@@ -101,6 +104,15 @@ validation/logs/ui_smoke.ok
 ```
 
 说明：当前 `validate_ui_smoke.m` 会以不可见窗口启动 UI，并在退出前强制清理 figure。本机复验结果为 `exit=0`。由于 Octave 图形后端和 MATLAB 不完全一致，最终交互体验仍建议由有 MATLAB 的组员复核。
+
+本机也提供两个 Windows 入口：
+
+```powershell
+.\RunValidation_Octave.cmd
+.\RunProject_OctaveGUI.cmd
+```
+
+注意：本机 `octave-gui.exe` 会触发 Fail Fast Exception，因此 GUI 启动入口实际使用 `octave-cli --persist` 打开 figure 窗口。
 
 ## 分工状态
 

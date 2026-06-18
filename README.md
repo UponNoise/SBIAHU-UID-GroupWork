@@ -21,6 +21,8 @@ Official course reference: [Stony Brook University ISE333 / CSE333 User Interfac
 - `MapForUI.jpg`: required course map asset.
 - `validate_navigation_core.m`: non-GUI validation of map scale, road legality, 3 px road grid, snapping, shortest path, and local circular masking.
 - `validate_ui_smoke.m`: fast UI launch smoke test.
+- `RunProject_OctaveGUI.cmd`: Windows Octave visible-window launcher for this workstation.
+- `RunValidation_Octave.cmd`: Windows Octave one-command validation launcher.
 - `README_CN.md`: Chinese project guide for group members.
 - `docs/`: technical report, design assets, Chinese audit notes, and development log.
 - `tools/extract_road_model_from_marked_map.py`: offline helper that converts the green width-marked road image into `RoadModelDataPx.m`.
@@ -84,6 +86,15 @@ validation/logs/ui_smoke.ok
 ```
 
 The smoke script runs figures invisibly and deletes them before exit, so the current Octave check returns `exit=0` on this machine. MATLAB should still be used for final interactive UI acceptance when available.
+
+This workstation also provides:
+
+```powershell
+.\RunValidation_Octave.cmd
+.\RunProject_OctaveGUI.cmd
+```
+
+`octave-gui.exe` fails fast on this workstation, so the visible launcher uses `octave-cli --persist` to open the figure UI without starting the Octave IDE.
 
 ## Optional Requirement Assignment
 
